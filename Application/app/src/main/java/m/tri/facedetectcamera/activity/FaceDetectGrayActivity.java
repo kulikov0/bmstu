@@ -134,7 +134,7 @@ public final class FaceDetectGrayActivity extends AppCompatActivity implements S
         getSupportActionBar().setDisplayShowTitleEnabled(true);
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("Face Detect Gray");
+        getSupportActionBar().setTitle("BMSTU");
 
         if (icicle != null)
             cameraId = icicle.getInt(BUNDLE_CAMERA_ID, 0);
