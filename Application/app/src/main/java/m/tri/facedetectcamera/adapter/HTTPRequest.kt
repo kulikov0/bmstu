@@ -1,6 +1,8 @@
 package m.tri.facedetectcamera.adapter
 
 import android.graphics.Bitmap
+import android.util.Base64
+import android.util.Log
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
@@ -8,6 +10,7 @@ import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.http.*
 import java.io.ByteArrayOutputStream
+import java.util.*
 import java.util.concurrent.*
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -30,7 +33,7 @@ class HTTPRequest {
             .build()
 
     private val retrofit: Retrofit = Retrofit.Builder()
-            .baseUrl("http://mydomain.com")
+            .baseUrl("http://151.248.113.161")
             .validateEagerly(true)
             .client(client)
             .build()
@@ -49,8 +52,22 @@ class HTTPRequest {
                 while(isRunning.get()) {
                     try {
                         val bmp = queue.poll(5, TimeUnit.SECONDS)
-                        executionContextExecutor.execute({ sendOctetStream(bmp) })
+                        Log.d("HTTPRequest", "bitmap polled successfully")
+                        if(bmp != null) {
+                            executionContextExecutor.execute({
+                                try {
+                                    val response = sendBase64(bmp)
+                                    Log.d("HTTPRequest", "response code: ${response.code()}")
+                                    Log.d("HTTPRequest", "response body: ${response.body()?.string()?.toString()}")
+                                    Log.d("HTTPRequest", "response error body: ${response.errorBody()?.string()?.toString()}")
+                                } catch (e: Throwable) {
+                                    e.printStackTrace()
+                                }
+                            })
+                        }
                     } catch(e: InterruptedException) {
+                        e.printStackTrace()
+                    } catch(e: Throwable) {
                         e.printStackTrace()
                     }
                 }
@@ -68,6 +85,10 @@ class HTTPRequest {
 
     private fun sendMultipart(bmp: Bitmap): Response<ResponseBody>
         = api.sendMultipart("jpeg".toPart(), bmp.toPart())
+            .execute()
+
+    private fun sendBase64(bmp: Bitmap): Response<ResponseBody>
+        = api.sendBase64(bmp.toBase64(), "${UUID.randomUUID()}.jpeg")
             .execute()
 
     private fun String.toPart(): RequestBody
@@ -91,6 +112,12 @@ class HTTPRequest {
         )
     }
 
+    private fun Bitmap.toBase64(): String {
+        val baos = ByteArrayOutputStream()
+        compress(Bitmap.CompressFormat.JPEG, 100, baos)
+        return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT)
+    }
+
     private interface Api {
 
         @POST("/some/endpoint")
@@ -105,5 +132,9 @@ class HTTPRequest {
                 @Part("extension") extension: RequestBody,
                 @Part("image") image: RequestBody
         ): Call<ResponseBody>
+
+        @POST("/test.php")
+        @FormUrlEncoded
+        fun sendBase64(@Field("image") imageBase64: String, @Field("name") name: String): Call<ResponseBody>
     }
 }

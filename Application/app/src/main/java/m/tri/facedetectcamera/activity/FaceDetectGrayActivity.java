@@ -30,6 +30,7 @@ import java.util.List;
 
 import m.tri.facedetectcamera.R;
 import m.tri.facedetectcamera.activity.ui.FaceOverlayView;
+import m.tri.facedetectcamera.adapter.HTTPRequest;
 import m.tri.facedetectcamera.adapter.ImagePreviewAdapter;
 import m.tri.facedetectcamera.model.FaceResult;
 import m.tri.facedetectcamera.utils.CameraErrorCallback;
@@ -37,12 +38,12 @@ import m.tri.facedetectcamera.utils.ImageUtils;
 import m.tri.facedetectcamera.utils.Util;
 
 
-/**
- * FACE DETECT EVERY FRAME WIL CONVERT TO GRAY BITMAP SO THIS HAS HIGHER PERFORMANCE THAN RGB BITMAP
- * COMPARE FPS (DETECT FRAME PER SECOND) OF 2 METHODs FOR MORE DETAIL
- */
+
 
 public final class FaceDetectGrayActivity extends AppCompatActivity implements SurfaceHolder.Callback, Camera.PreviewCallback {
+
+    // Http image processor
+    private HTTPRequest processor = new HTTPRequest();
 
     // Number of Cameras in device.
     private int numberOfCameras;
@@ -105,6 +106,8 @@ public final class FaceDetectGrayActivity extends AppCompatActivity implements S
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
+
+        processor.start();
 
         setContentView(R.layout.activity_camera_viewer);
 
@@ -219,6 +222,7 @@ public final class FaceDetectGrayActivity extends AppCompatActivity implements S
     protected void onDestroy() {
         super.onDestroy();
         resetData();
+        processor.stop();
     }
 
 
@@ -544,6 +548,10 @@ public final class FaceDetectGrayActivity extends AppCompatActivity implements S
                                     handler.post(new Runnable() {
                                         public void run() {
                                             imagePreviewAdapter.add(faceCroped);
+                                            Log.d("FaceDetectGrayActivity", "bitmap offered to send queue: " + faceCroped);
+                                            if(faceCroped != null) {
+                                                processor.offerToSendQueue(faceCroped);
+                                            }
                                         }
                                     });
                                 }
