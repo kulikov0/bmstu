@@ -11,8 +11,7 @@
         android:layout_height="@dimen/image_preview"
         android:layout_gravity="right"
         android:scaleType="fitCenter"
-        android:adjustViewBounds="true"/>
-
+        android:adjustViewBounds="true" />
 
 
     <RelativeLayout

@@ -6,8 +6,8 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId "m.tri.facedetectcamera"
-        minSdkVersion 11
+        applicationId "a.kulikov.bmstuproject"
+        minSdkVersion 14
         targetSdkVersion 23
         versionCode 1
         versionName "1.0"
@@ -27,9 +27,13 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:23.4.0'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
 
+    compile 'com.google.firebase:firebase-core:11.8.0'
+    compile 'com.google.firebase:firebase-messaging:11.8.0'
     compile "com.squareup.retrofit2:retrofit:2.3.0"
     compile "com.squareup.okhttp3:logging-interceptor:3.8.0"
 }
 repositories {
     jcenter()
 }
+
+apply plugin: 'com.google.gms.google-services'
